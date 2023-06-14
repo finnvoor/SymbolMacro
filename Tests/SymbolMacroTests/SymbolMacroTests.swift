@@ -1,33 +1,62 @@
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
+import SymbolMacroPlugin
 import XCTest
-import SymbolMacroMacros
 
 let testMacros: [String: Macro.Type] = [
-    "stringify": StringifyMacro.self,
+    "symbol": SymbolMacro.self,
+    "symbolImage": SymbolImageMacro.self
 ]
 
+// MARK: - SymbolMacroTests
+
 final class SymbolMacroTests: XCTestCase {
-    func testMacro() {
+    func testValidSymbol() {
         assertMacroExpansion(
             """
-            #stringify(a + b)
+            let systemSymbolName = #symbol("figure.run")
             """,
             expandedSource: """
-            (a + b, "a + b")
+            let systemSymbolName = "figure.run"
             """,
             macros: testMacros
         )
     }
 
-    func testMacroWithStringLiteral() {
+    func testInvalidSymbol() {
         assertMacroExpansion(
             #"""
-            #stringify("Hello, \(name)")
+            let systemSymbolName = #symbol("figure.beans")
             """#,
             expandedSource: #"""
-            ("Hello, \(name)", #""Hello, \(name)""#)
+            let systemSymbolName = #symbol("figure.beans")
             """#,
+            diagnostics: [.init(message: "invalid symbol name", line: 1, column: 24)],
+            macros: testMacros
+        )
+    }
+
+    func testValidSymbolImage() {
+        assertMacroExpansion(
+            """
+            let systemSymbolName = #symbolImage("figure.run")
+            """,
+            expandedSource: """
+            let systemSymbolName = Image(systemName: "figure.run")
+            """,
+            macros: testMacros
+        )
+    }
+
+    func testInvalidSymbolImage() {
+        assertMacroExpansion(
+            """
+            let systemSymbolImage = #symbolImage("figure.beans")
+            """,
+            expandedSource: """
+            let systemSymbolImage = #symbolImage("figure.beans")
+            """,
+            diagnostics: [.init(message: "invalid symbol name", line: 1, column: 25)],
             macros: testMacros
         )
     }
