@@ -35,6 +35,9 @@ let symbol = #symbolImage("figure.eating.beans")
 // Error: 1:14 invalid symbol name
 ```
 
+### Limitations
+[Symbol availability is based on the OS version of the device compiling an app, not the target deployment version of the app.](https://github.com/Finnvoor/SymbolMacro/issues/1)
+
 ### Alternatives
 SF Symbols can be accessed using hardcoded enum cases using:
 - https://github.com/SFSafeSymbols/SFSafeSymbols
